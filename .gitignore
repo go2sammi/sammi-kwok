@@ -1,0 +1,7 @@
+# 排除大型影片檔案（超過 GitHub 100MB 限制）
+Jas/video/
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+desktop.ini
