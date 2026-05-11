@@ -17,12 +17,26 @@ navToggle.addEventListener('click', () => navLinksEl.classList.toggle('open'));
 navLinks.forEach(l => l.addEventListener('click', () => navLinksEl.classList.remove('open')));
 
 // ===== Contact form =====
-document.getElementById('contactForm').addEventListener('submit', e => {
+document.getElementById('contactForm').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = e.target.querySelector('button[type="submit"]');
-  btn.textContent = 'Sent!';
+  btn.textContent = 'Sending…';
   btn.disabled = true;
-  setTimeout(() => { btn.textContent = 'Send Message'; btn.disabled = false; e.target.reset(); }, 3000);
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: new FormData(e.target) });
+    const data = await res.json();
+    if (data.success) {
+      btn.textContent = 'Sent!';
+      e.target.reset();
+      setTimeout(() => { btn.textContent = 'Send Message'; btn.disabled = false; }, 3000);
+    } else {
+      btn.textContent = 'Error – try again';
+      btn.disabled = false;
+    }
+  } catch {
+    btn.textContent = 'Error – try again';
+    btn.disabled = false;
+  }
 });
 
 // ===== Works filter =====
@@ -56,12 +70,16 @@ function openLightbox(src, type, title) {
     lightboxBody.appendChild(img);
   } else if (type === 'video') {
     const video = document.createElement('video');
-    video.src = src;
-    video.controls = true;
-    video.autoplay = true;
-    video.style.maxWidth = '100%';
-    video.style.maxHeight = '75vh';
+    video.src = src; video.controls = true; video.autoplay = true;
+    video.style.cssText = 'max-width:100%;max-height:75vh;';
     lightboxBody.appendChild(video);
+  } else if (type === 'youtube') {
+    const iframe = document.createElement('iframe');
+    iframe.src = src;
+    iframe.title = title;
+    iframe.allow = 'autoplay; fullscreen';
+    iframe.allowFullscreen = true;
+    lightboxBody.appendChild(iframe);
   } else {
     const iframe = document.createElement('iframe');
     iframe.src = src;
